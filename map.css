@@ -1,0 +1,14 @@
+#map-page, #map-canvas { width: 100%; height: 40%; padding: 0; }
+
+body{
+	background-image: url("ats_background.jpg");
+   	background-size: cover;
+    overflow-y: hidden;
+	}
+
+label {
+       text-align: right;
+       clear: both;
+       float:left;
+       margin-right:15px;
+	  }

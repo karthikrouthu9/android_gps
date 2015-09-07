@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+	<title>Attendance Tracking System</title>
+<style>
+.form-links a {
+		color: #fff;
+	}</style>
+
+
+			<link rel='stylesheet' href='patient_selection.css' type='text/css'/> 
+			<script type="text/javascript" src="cordova.js"></script>
+  			
+ 			<link href="bootstrap-3.3.4/css/bootstrap.css" rel="stylesheet">
+			<link rel="stylesheet" href="bootstrap-3.3.4/css/bootstrap.min.css" media="screen" type="text/css" />
+     		<script src="bootstrap-3.3.4/js/bootstrap.min.js"></script>
+    		<script src="jquery-1.11.2.js"></script>
+     		<script src="jquery-1.11.2.min.js"></script>
+			<script src="logout.js"></script>
+     		<script>
+    document.addEventListener("deviceready", onDeviceReady, false);
+	function onDeviceReady() {
+	
+	 document.addEventListener("backbutton", onBackKeyDown, false);
+   	var networkState = navigator.connection.type;
+    if (networkState == Connection.NONE)
+    {
+      window.location='./first_screen.html';
+               return false;
+    }
+   else
+   {
+   		
+   } 
+   
+  $.ajaxSetup({
+        xhrFields: {
+            withCredentials: true
+        }
+    });
+
+		     // Obtain session token.
+		  
+		   
+        $.ajax({
+          url:"http://183.82.96.212:8080/services/session/token",
+          type:"get",
+          dataType:"text",
+          error:function (jqXHR, textStatus, errorThrown) {
+			
+          },
+          success: function (token) {   
+   
+   	//var device_uuid = '8dc6cf319947e729';
+	var device_uuid = device.uuid;
+	var from_date='2015-06-01';
+	var d = document.getElementById("device_uuid");
+	
+            $.ajax({
+              url: 'http://183.82.96.212:8080/m_service/m_resources/get_schedules',
+              type: "POST",
+	  		  //data: 'device_uuid='+'8dc6cf319947e729',
+      		  data: 'device_uuid='+device.uuid,
+              dataType: "json",
+              
+			  error: function (jqXHR, textStatus, errorThrown) {
+			
+               
+              },
+              success: function (data) {
+              
+			  $("#sucess_id").show();
+			    var json = data;
+                if(data.response=="2")
+				{
+				
+				var obj = json.patientdata[0];
+				obj.sch_uuid;
+				/*obj.visit_type_id;
+				obj.patient_uuid;
+				obj.employee_uuid;
+				obj.business_uuid;*/
+				
+				window.location= "post_check_in.html?sch_uuid="+obj.sch_uuid;
+      			}
+				else
+				{
+                if(json.patientdata.length==0)
+			{
+			
+			document.getElementById("result_response").innerHTML ="No visits scheduled for today";
+			
+			
+			bootbox.dialog({
+  message: "No schedules scheduled for today",
+  title: "Message",
+  buttons: {
+    success: {
+      label: "OK",
+      className: "btn-success",
+      callback: function() {
+  
+  
+    
+      }
+    
+    }
+    
+    
+  }
+});
+			}
+			else
+			{
+			
+			$("#touch_response").show();
+			var j=1;
+			var data=''; 
+			for(var i = 0; i < json.patientdata.length; i++) {
+    		var obj = json.patientdata[i];
+if(obj.evv_mobile_visit_status=='1')
+{
+
+data +='  <div class="panel panel-default"> <div class="panel-heading"><h4 class="panel-title"><span style="color: #1357A6;"> <a data-toggle="collapse"  data-parent="#accordion" href="#collapse'+j+'"><span class=" glyphicon glyphicon-user"></span><span style="font-size: 17px; color: #1357A6;"> '+obj.patient_name+'</span><span style="float: right; font-size: 16px; "></span> <a href="map.html?sch_uuid='+obj.sch_uuid+'&visit_uuid='+obj.visit_uuid+'&visit_type_id='+obj.visit_type_id+'&patient_uuid='+obj.patient_uuid+'&visit_date='+obj.visit_date+'&employee_uuid='+obj.employee_uuid+'&business_uuid='+obj.business_uuid+'&user_id='+obj.user_id+'"><span style="float: right; font-size: 16px; color: #1357A6;"> <span class=" glyphicon glyphicon-time"></span> '+obj.sch_start_timestamp+'-'+obj.sch_end_timestamp+' </span></a></h4>      </div>      <div id="collapse'+j+'" class="panel-collapse collapse"> <span style="font-size: 16px; color: #1357A6;" >      <div class="panel-body"> <span class=" glyphicon glyphicon-home"></span> '+obj.agency_name+'</div>      <span style="padding: 16px;">   <a href="map.html?sch_uuid='+obj.sch_uuid+'&visit_uuid='+obj.visit_uuid+'&visit_type_id='+obj.visit_type_id+'&patient_uuid='+obj.patient_uuid+'&user_id='+obj.user_id+'"><span class=" glyphicon glyphicon-bed"></span> '+obj.visit_type+'<span style="float: right;padding-right: 20px; "><span class=" glyphicon glyphicon-time"></span> '+obj.sch_start_timestamp+'-'+obj.sch_end_timestamp+' </span></a> </span></div></div>';
+
+}
+
+else if(obj.evv_mobile_visit_status=='2'){
+data +='  <div class="panel panel-default"> <div class="panel-heading"><h4 class="panel-title"><span style="color: #1357A6;"> <a data-toggle="collapse"  data-parent="#accordion" href="#collapse'+j+'"><span class=" glyphicon glyphicon-user"></span><span style="font-size: 17px; color: #1357A6;"> '+obj.patient_name+'<span class="glyphicon glyphicon-ok"><span style="float: right; font-size: 16px; "></span> <a href="visit_details.html?sch_uuid='+obj.sch_uuid+'&visit_uuid='+obj.visit_uuid+'&visit_type_id='+obj.visit_type_id+'&patient_uuid='+obj.patient_uuid+'&employee_uuid='+obj.employee_uuid+'&business_uuid='+obj.business_uuid+'&user_id='+obj.user_id+'"><span style="float: right; font-size: 16px; color: #1357A6;"> <span class=" glyphicon glyphicon-time"></span> '+obj.sch_start_timestamp+'-'+obj.sch_end_timestamp+' </span></a></h4>      </div>      <div id="collapse'+j+'" class="panel-collapse collapse"> <span style="font-size: 16px; color: #1357A6;" >      <div class="panel-body"> <span class=" glyphicon glyphicon-home"></span> '+obj.agency_name+'</div>      <span style="padding: 16px;">   <a href="visit_details.html?sch_uuid='+obj.sch_uuid+'&visit_uuid='+obj.visit_uuid+'&visit_type_id='+obj.visit_type_id+'&patient_uuid='+obj.patient_uuid+'&user_id='+obj.user_id+'"><span class=" glyphicon glyphicon-bed"></span> '+obj.visit_type+'<span style="float: right;padding-right: 20px; "><span class=" glyphicon glyphicon-time"></span> '+obj.sch_start_timestamp+'-'+obj.sch_end_timestamp+' </span></a> </span></div></div>';
+	}	
+	else if(obj.evv_mobile_visit_status=='3')
+	{
+	
+data +='  <div class="panel panel-default"> <div class="panel-heading"><h4 class="panel-title"><span style="color: #1357A6;"> <a data-toggle="collapse"  data-parent="#accordion" href="#collapse'+j+'"><span class=" glyphicon glyphicon-user"></span><span style="font-size: 17px; color: #1357A6;"> '+obj.patient_name+'<span class="glyphicon glyphicon-remove"><span style="float: right; font-size: 16px; "></span> <a href="patient_availability_summary.html?sch_uuid='+obj.sch_uuid+'&visit_uuid='+obj.visit_uuid+'&visit_type_id='+obj.visit_type_id+'&patient_uuid='+obj.patient_uuid+'&employee_uuid='+obj.employee_uuid+'&business_uuid='+obj.business_uuid+'&user_id='+obj.user_id+'"><span style="float: right; font-size: 16px; color: #1357A6;"> <span class=" glyphicon glyphicon-time"></span> '+obj.sch_start_timestamp+'-'+obj.sch_end_timestamp+' </span></a></h4>      </div>      <div id="collapse'+j+'" class="panel-collapse collapse"> <span style="font-size: 16px; color: #1357A6;" >      <div class="panel-body"> <span class=" glyphicon glyphicon-home"></span> '+obj.agency_name+'</div>      <span style="padding: 16px;">   <a href="patient_availability_summary.html?sch_uuid='+obj.sch_uuid+'&visit_uuid='+obj.visit_uuid+'&visit_type_id='+obj.visit_type_id+'&patient_uuid='+obj.patient_uuid+'&user_id='+obj.user_id+'"><span class=" glyphicon glyphicon-bed"></span> '+obj.visit_type+'<span style="float: right;padding-right: 20px; "><span class=" glyphicon glyphicon-time"></span> '+obj.sch_start_timestamp+'-'+obj.sch_end_timestamp+' </span></a> </span></div></div>';
+	
+	}
+	
+	else{
+
+data +='  <div class="panel panel-default"> <div class="panel-heading"><h4 class="panel-title"><span style="color: #1357A6;"> <a data-toggle="collapse"  data-parent="#accordion" href="#collapse'+j+'"><span class=" glyphicon glyphicon-user"></span><span style="font-size: 17px; color: #1357A6;"> '+obj.patient_name+'</span><span style="float: right; font-size: 16px; "></span> <a href="map.html?sch_uuid='+obj.sch_uuid+'&visit_uuid='+obj.visit_uuid+'&visit_type_id='+obj.visit_type_id+'&patient_uuid='+obj.patient_uuid+'&visit_date='+obj.visit_date+'&employee_uuid='+obj.employee_uuid+'&business_uuid='+obj.business_uuid+'&user_id='+obj.user_id+'"><span style="float: right; font-size: 16px; color: #1357A6;"> <span class=" glyphicon glyphicon-time"></span> '+obj.sch_start_timestamp+'-'+obj.sch_end_timestamp+' </span></a></h4>      </div>      <div id="collapse'+j+'" class="panel-collapse collapse"> <span style="font-size: 16px; color: #1357A6;" >      <div class="panel-body"> <span class=" glyphicon glyphicon-home"></span> '+obj.agency_name+'</div>      <span style="padding: 16px;">   <a href="map.html?sch_uuid='+obj.sch_uuid+'&visit_uuid='+obj.visit_uuid+'&visit_type_id='+obj.visit_type_id+'&patient_uuid='+obj.patient_uuid+'&user_id='+obj.user_id+'"><span class=" glyphicon glyphicon-bed"></span> '+obj.visit_type+'<span style="float: right;padding-right: 20px; "><span class=" glyphicon glyphicon-time"></span> '+obj.sch_start_timestamp+'-'+obj.sch_end_timestamp+' </span></a> </span></div></div>';
+
+	}
+					j++;
+			 }
+			}
+            document.getElementById("accordion").innerHTML =data ;    
+                
+              }
+			  }
+            });
+         
+
+	}
+			
+}); 
+	$('#collapse2').on('.panel-collapse.collapse'), function() {
+	$(".servicedrop").addClass('glyphicon-chevron-up').removeClass('glyphicon-chevron-down');
+  }
+
+$('#collapse2').on('.panel-collapse.collapse.in'), function() {
+    $(".servicedrop").addClass('glyphicon-chevron-down').removeClass('glyphicon-chevron-up');
+  }
+  }
+  
+  
+  
+   function onBackKeyDown() {
+   
+   e.preventDefault();
+    }
+        </script>
+</head>
+
+<body onload="onDeviceReady()">
+  
+
+  <style type="text/css">/* 1st level */
+.nav label {
+	color: blue;
+}
+
+/* 2nd level */
+.tree > li > label {
+  padding:10px 15px;  
+}
+body {
+	background-image: url("ats_background.jpg");
+   	background-size: cover;
+    overflow-y: hidden;
+     }
+h3
+{
+color:black;
+}
+
+</style>
+
+  
+<style type="text/css"></style></head>
+<body cz-shortcut-listen="true">
+  <div class="container">
+  
+  <div class="row">
+  <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            
+			<div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">
+                    <img src="homecare_logo.png" alt style="height: 39px;margin-top: -8px;"">
+                </a>
+            </div>
+            
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a href="about.html">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="contactus.html">Contact</a>
+                    </li>
+                    <li>
+					<a href="create_pin.html">Create New PIN</a>
+                      
+                    </li>
+					<li>
+					<a href="log-in.html">Logout</a>
+                      
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+<br>
+    <!-- Page Content -->
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 col-sm-12 col-sm-12">
+            
+              
+     <div class="row">
+      //<div class="col-lg-12 col-sm-12 col-sm-12">
+        <div class="col-md-offset-3 col-sm-6 col-sm-offset-3">
+          <div class="well"style="
+    margin-top: 47px";
+          >
+           <b><center><h4>Today's Schedules</h4></center></b>
+          <center> <span id='touch_response' hidden='true'>Touch on schedule to Check-In</span></center>
+           <br>
+           <br>
+         
+          	<center><span id='result_response'></span></center>
+  			<div class="panel-group" id="accordion">
+</div> 
+
+   <input type="hidden" class="form-control input-lg" id="device_uuid"/>
+          
+  <script>
+  </script>
+  
+  <!--scripts loaded here-->
+  
+  <script src="./Codeply preview_files/jquery.min.js"></script>
+  <script src="./Codeply preview_files/bootstrap.min.js"></script>
+  
+  
+  
+  <script>
+  $('.tree-toggle').click(function () {
+ 
+	$(this).parent().children('ul.tree').toggle(200);
+});
+  </script>
+ <div class="form-links">
+       </div>
+      </div>
+</body>
+<center><a href="http://www.ondemandhomecare.com/" style="color: #FFFFFF ">www.ondemandhomecare.com</a></center>
+
+</html>

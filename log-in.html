@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta name="viewport" content="width=device-width">
+
+  <title>Attendance Monitoring System - Login Form</title>
+			<link rel='stylesheet' href='register.css' type='text/css'/> 
+			<link rel='stylesheet' href='login.css' type='text/css'/> 
+			<script src="jquery-1.11.2.min.js"></script>
+    		<script src="jquery-1.11.2.js"></script>
+    		<script type="text/javascript" src="cordova.js"></script>
+    		<script src="global.js"></script>
+        	<link rel="stylesheet" href="bootstrap-3.3.4/css/bootstrap.min.css" media="screen" type="text/css" />
+     		<script src="bootstrap-3.3.4/js/bootstrap.min.js"></script>
+    		<script src="login.js">
+    		<script src="bootbox.js"></script>
+        	<script src="bootbox.min.js"></script>
+    	
+<script>
+    		
+    
+    
+      document.addEventListener("deviceready", onDeviceReady, false);
+
+    function onDeviceReady() {
+    
+     document.addEventListener("backbutton", onBackKeyDown, false);
+        var element = document.getElementById('deviceProperties');
+ 
+
+ 
+       var device_uuid = device.uuid;
+       document.getElementById('device_uuid').value=device_uuid;
+       
+       
+          
+    var networkState = navigator.connection.type;
+    if (networkState == Connection.NONE)
+    {
+       var json ='{"result":"E-10003 :" ,"message": "Please Check Internet Connection Settings"}';
+
+	obj = JSON.parse(json);
+
+	
+
+	document.getElementById("bootstrap").innerHTML = "<div class='alert alert-danger' role='alert'>Please Check Internet Connection Settings</div>";
+	
+ 				window.location='./first_screen.html';
+                return true;
+               
+    }
+  //  else
+   // {
+       //return false;
+        
+    //     var response=checkloginpassword();
+    //   return response;
+//	}
+			
+			}
+			
+			function add_new_user()
+			{
+			var networkState = navigator.connection.type;
+    			if (networkState == Connection.NONE)
+    				{
+  
+  						window.location='./first_screen.html';
+    return false;
+    }
+    else
+    {
+    	}
+		location.href="register_new_user.html";
+			}
+	
+	function forgot_pin()
+		{
+			var networkState = navigator.connection.type;
+    		if (networkState == Connection.NONE)
+    			{
+  					window.location='./first_screen.html';
+               		return false;
+    			}
+    		else
+    		{
+    		}
+			location.href="forgot_pin.html";
+			}
+			
+			
+			
+			
+			
+			$("#passwordCell").html('');
+$("#passwordCell").append('<input type="tel" name="password_mask" id="password_mask" placeholder="4 digit numeric only allowed." maxlength="4"/>' +
+                            '<input type="password" pattern="[0-9]*" name="Password" id="Password" placeholder="4 digit numeric only allowed" maxlength="4" data-validation-required="true" data-validation-pattern="pin not_empty"/>');
+$("#password_mask").textinput();
+$("#Password").textinput();
+//$("#password_mask").show();
+$("#Password").hide();
+$("#password_mask").keyup(function() {
+    var inputLength = $(this).val().length;
+    var passwordLength = $("#Password").val().length;
+    if (inputLength > passwordLength) {
+        var inputLastChar = $(this).val().charAt(inputLength-1);
+        $("#Password").val($("#Password").val() + inputLastChar);
+    } else {
+        $("#Password").val($("#Password").val().substring(0, $(this).val().length));
+    }
+
+    var i = 0;
+    var maskPassword = "";
+    while (i < $("#password_mask").val().length) {
+        maskPassword += "*";
+        i++;
+    }
+    $("#password_mask").val(maskPassword);
+});
+$("#password_mask").blur(function() {
+    $("#Password").focus();
+    $("#Password").blur();
+});
+
+
+function onBackKeyDown() {
+  
+   navigator.app.exitApp();
+    }
+
+
+        </script>
+       
+</head>
+
+<body onload="onDeviceReady()">
+
+<body>
+<div class="container">
+  
+  <div class="row" id="pwd-container">
+   
+   
+    <div class="col-md-offset-3 col-sm-6 col-sm-offset-3">
+      <section class="login-form">
+              <span id="bootstrap"></span>
+      <form method="post"  onsubmit="return checkloginpassword();" role="login">
+          <img src="homecare_logo.png" class="img-responsive" alt="" style="HEIGHT:62PX;"/>
+          
+           <b><center><h4>Device Log-In</h4></center></b>
+      
+        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="4" name="registrationcode" placeholder="Enter Device Log-In PIN"  class="form-control input-lg" id="registrationcode1" maxlength="4"/>
+    	<input type="hidden" class="form-control input-lg" id="device_uuid"/>
+        
+        <button type="submit" name="go" class="btn btn-lg btn-primary btn-block" style="background-color: #1357A6;">Log-In</button>
+ 		<p align="right"><a href="forgot_pin.html">Forgot PIN</a></p>
+         If you are using On-Demand Homecare Portal from multiple agencies, you can register your mobile device with every agency. If you want to add another agency, please touch the link below. <p><a href="register_new_user.html"><center>Register my device with another agency</center></a></p>
+         
+          
+        </form>
+        
+        <div class="form-links">
+          <a href="http://www.ondemandhomecare.com/">www.ondemandhomecare.com</a>
+        </div>
+      </section>  
+      </div>
+	</div>
+</div>
+</body>
+</html>

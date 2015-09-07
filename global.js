@@ -1,0 +1,7 @@
+
+$.ajaxSetup({
+	  
+        xhrFields: {
+            withCredentials: true
+        }
+    });

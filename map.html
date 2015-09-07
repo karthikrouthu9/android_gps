@@ -1,0 +1,907 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+
+	<meta charset="UTF-8">
+	<title>Attendance System</title>
+	<script type="text/javascript" src="maps.google.com.maps.api.js"></script>
+	<script type="text/javascript" src="cordova.js"></script>
+	<script type="text/javascript" src="jquery-1.7.min.js"></script>
+	<script type="text/javascript" src="main.js"></script>
+	<link rel="stylesheet" href="jquery.mobile-1.3.2.min.css" />
+	<script type="text/javascript" src="main.js"></script>
+	<script src="http://maps.google.com/maps/api/js?sensor=true"></script> 
+	<script src="jquery-1.11.2.min.js"></script>
+	<script src="jquery-1.11.2.js"></script>
+	<script src="map.js"></script> 
+ 	<link href="bootstrap-3.3.4/css/bootstrap.css" rel="stylesheet">
+	<script src="bootstrap-3.3.4/js/bootstrap.min.js"></script>
+	<link href="bootstrap-switch.css" rel="stylesheet">
+	<script src="bootstrap-switch.js"></script>
+	<script src="bootbox.js"></script>
+    <script src="bootbox.min.js"></script>
+     <script src="diagnostic.js"></script>
+    
+
+	
+<style>
+p.dotted {border-bottom-style: inset;border-top-style: none;border-left-style: none;border-right-style: none;}
+	      html, body, #map-canvas {
+        height: 74%;
+        margin: 0;
+        padding: 0px
+      }
+    
+	
+		#div_signcontract{ width: 100%; }
+		.popupHeader{ margin: 10px; }
+		
+		
+		#errmsg
+{
+color: black;
+}
+	</style>
+	
+	
+<script type="text/javascript">
+	document.addEventListener("deviceready", onDeviceReady, false);
+    function onDeviceReady() 
+    {
+    
+    
+        var element = document.getElementById('deviceProperties');
+ 	
+	var networkState = navigator.connection.type;
+    if (networkState == Connection.NONE)
+    {
+    	window.location='./first_screen.html';
+        return true;
+    }
+    else
+    {
+    alert("On Device Ready in Check-In else");
+    cordova.plugins.diagnostic.isLocationEnabled(successCallback, errorCallback);
+		var visit_uuid = getURLParameters('visit_uuid');
+		var visit_type_id = getURLParameters('visit_type_id');
+		var patient_uuid = getURLParameters('patient_uuid');
+		var user_id = getURLParameters('user_id');
+		var sch_uuid = getURLParameters('sch_uuid');
+		
+	
+  sch_uuid=sch_uuid;
+ 
+	$.post( "http://183.82.96.212:8080/m_service/m_resources/get_visit_details" , {sch_uuid:sch_uuid}, function( data ) {
+
+ var json = data;
+ var patient_name = json.patientdata[0].patient_name;
+ var visit_type = json.patientdata[0].visit_type;
+ var scheduled_time = json.patientdata[0].sch_start_timestamp+'-'+json.patientdata[0].sch_end_timestamp;
+ 
+
+  $("#exampleInputpatientname1").html(patient_name);
+  $("#exampleInputvisittype1").html(visit_type);
+  $("#exampleInputscheduledtime1").html(scheduled_time);
+  	  
+}, "json").fail(function() {
+
+
+
+  });;
+  return false;
+}	   
+        navigator.geolocation.getCurrentPosition(function(position)
+	{
+    	// just to show how to access latitute and longitude
+  
+	},
+	function(error)
+	{
+	//  error getting GPS coordinates
+
+		navigator.app.exitApp();      
+	}, 
+	{ 
+		enableHighAccuracy: true, maximumAge: 3000, timeout: 1000 });
+        return false;
+	}
+
+
+	function select_patient_visit_type()	
+	 {
+		var json = '{    "patient_uuid" : "74125896321456987532145698521458",   "patient_name"   : "", "agency_name"   : "Logos Health Agency", "visit_type": "ST Re-evaluation",	"visit_uuid": "11325896321456987532145698521456",	"sch_start_time":"10:00",	"sch_end_time":"11:30"}';
+		obj = JSON.parse(json);
+
+
+
+
+	getLocation();
+
+	function getLocation() {
+    if (navigator.geolocation) {
+    
+       return navigator.geolocation.getCurrentPosition(showPosition);
+    } else { 
+   
+        
+    }
+}
+
+function showPosition(position) {
+	$('input#latitude').val(position.coords.latitude);
+	$('input#longitude').val(position.coords.longitude);
+	}
+
+
+
+
+	$('input#exampleInputpatientname1').val(obj.patient_name);
+	$('input#exampleInputvisittype1').val(obj.visit_type);
+	$('input#exampleInputscheduledtime1').val(obj.sch_start_time +'-'+ obj.sch_end_time);
+	document.getElementById("exampleInputpatientname1").innerHTML = obj.patient_name;
+	document.getElementById("exampleInputvisittype1").innerHTML = obj.visit_type;
+	document.getElementById("exampleInputscheduledtime1").innerHTML = obj.sch_start_time +'-'+ obj.sch_end_time;
+	document.getElementById("agency_name").innerHTML = obj.agency_name;
+	}
+		var isSign = false;
+		var leftMButtonDown = false;
+		
+		jQuery(function(){
+			//Initialize sign pad
+			init_Sign_Canvas();
+		});
+		
+		function fun_submit() 
+		{
+			if(isSign) 
+			{
+				var canvas = $("#canvas").get(0);
+				var imgData = canvas.toDataURL();
+				/*jQuery('#page').find('p').remove();
+				jQuery('#page').find('img').remove();
+				jQuery('#page').append(jQuery('<p>:</p>'));
+				jQuery('#page').append($('<img/>').attr('src',imgData));*/
+				
+				//closePopUp();
+				var canvas = $("#canvas").get(0);
+				var imgData = canvas.toDataURL();
+				//var imgData=$('input#imgData').val();
+				
+	
+	var device_uuid = device.uuid;
+	var latitude=$('input#latitude').val();
+	var longitude=$('input#longitude').val();
+	var sch_uuid = getURLParameters('sch_uuid');
+	var patient_uuid = getURLParameters('patient_uuid');
+	var employee_uuid = getURLParameters('employee_uuid');
+	var business_uuid = getURLParameters('business_uuid');
+	var visit_type_id = getURLParameters('visit_type_id');
+	var visit_date = getURLParameters('visit_date');
+	var check_in_time = getURLParameters('check_in_time');
+	var expenses=$('input#expenses1').val();
+	var mileage=$('input#mileage1').val();
+	var patient_availability_status =$('input[name="my-checkbox"]').is(":checked");
+	if(patient_availability_status=='1')
+	{
+	transaction_type='1';
+	}
+	else
+	{
+	transaction_type='3';
+	}
+	var reason_codes=$('input#reason_codes').val();
+	var visit_duration=$('input#exampleInputminutesspent').val();
+	event.preventDefault();
+	      
+	if(visit_date=="2015-08-24"&&check_in_time==""&&expenses==""&&mileage==""&&reason_codes==""&&duration=="")
+	{
+		visit_date=="";
+		check_in_time=="";
+		expenses=="";
+		mileage=="";
+		reason_codes=="";
+		duration=="";
+	}
+		//var device_uuid = '8dc6cf319947e729';
+	
+		var pos=initialize();
+		
+		//sch_uuid=Math.random();
+
+$.post( "http://183.82.96.212:8080/m_service/m_resources/employee_visit_check_in" , {transaction_type: transaction_type, imgData:imgData, device_unique_id:device_uuid,latitude:latitude,longitude:longitude,sch_uuid:sch_uuid,patient_uuid:patient_uuid,employee_uuid:employee_uuid,business_uuid:business_uuid,visit_date:visit_date,visit_type_id:visit_type_id,check_in_time:check_in_time,expenses:expenses,mileage:mileage,reason_codes:reason_codes,visit_duration:visit_duration}, function( data ) {
+
+
+var obj=data;
+
+if(patient_availability_status)
+		{ 
+			
+		
+
+			 bootbox.dialog({
+  message: obj.response_message,
+  title: "Message",
+  buttons: {
+    success: {
+      label: "OK",
+      className: "btn-success",
+      callback: function() {
+      var visit_uuid = getURLParameters('visit_uuid');
+		var visit_type_id = getURLParameters('visit_type_id');
+		var patient_uuid = getURLParameters('patient_uuid');
+		var user_id = getURLParameters('user_id');
+		var sch_uuid = getURLParameters('sch_uuid');
+      window.location= "post_check_in.html?sch_uuid="+sch_uuid+'&visit_uuid='+visit_uuid+'&visit_type_id='+visit_type_id+'&patient_uuid='+patient_uuid+'&visit_date='+obj.visit_date+'&employee_uuid='+obj.employee_uuid+'&business_uuid='+obj.business_uuid+'&user_id='+user_id;
+      
+      
+      }
+    
+    }
+    
+    
+  }
+});
+ 	}
+ 	
+ 	else
+ 	{
+		
+		
+		
+			 bootbox.dialog({
+  message: "Check-In Successful when patient is not available",
+  title: "Message",
+  buttons: {
+    success: {
+      label: "OK",
+      className: "btn-success",
+      callback: function() {
+      var visit_uuid = getURLParameters('visit_uuid');
+		var visit_type_id = getURLParameters('visit_type_id');
+		var patient_uuid = getURLParameters('patient_uuid');
+		var user_id = getURLParameters('user_id');
+		var sch_uuid = getURLParameters('sch_uuid');
+      window.location= "patient_availability_summary.html?sch_uuid="+sch_uuid+'&visit_uuid='+visit_uuid+'&visit_type_id='+visit_type_id+'&patient_uuid='+patient_uuid+'&visit_date='+obj.visit_date+'&employee_uuid='+obj.employee_uuid+'&business_uuid='+obj.business_uuid+'&user_id='+user_id;
+      
+      
+      }
+    
+    }
+    
+    
+  }
+});
+		
+		
+		 	
+ 	}
+ 	document.getElementById("bootstrap").innerHTML = "<div class='alert alert-success' role='alert'></div>";
+		window.location=url;
+	      return false;
+      
+}, "json").fail(function() {
+
+ bootbox.dialog({
+  message: "Please Try Again",
+  title: "Message",
+  buttons: {
+    success: {
+      label: "OK",
+      className: "btn-success",
+      callback: function() {
+  
+
+    
+      }
+    
+    }
+    
+    
+  }
+});
+ 	
+
+		
+		return false;
+});
+				
+				
+			} else {
+				bootbox.dialog({
+  message: "Signature box cannot be empty",
+  title: "Message",
+  buttons: {
+    success: {
+      label: "OK",
+      className: "btn-error",
+      callback: function() {
+  }
+  }
+  }
+}); 
+
+
+				return false;
+			}
+		}
+		
+		function init_Sign_Canvas() 
+		{
+			isSign = false;
+			leftMButtonDown = false;
+			
+			//Set Canvas width
+			var sizedWindowWidth = $(window).width();
+			if(sizedWindowWidth > 700)
+				sizedWindowWidth = $(window).width() / 2;
+			else if(sizedWindowWidth > 400)
+				sizedWindowWidth = sizedWindowWidth - 100;
+			else
+				sizedWindowWidth = sizedWindowWidth - 50;
+			 
+			 $("#canvas").width(299);
+			 $("#canvas").height(125);
+			 $("#canvas").css("border","1px solid #000");
+			
+			 var canvas = $("#canvas").get(0);
+			
+			 canvasContext = canvas.getContext('2d');
+
+			 if(canvasContext)
+			 {
+				 canvasContext.canvas.width  = sizedWindowWidth;
+				 canvasContext.canvas.height = 200;
+
+				 canvasContext.fillStyle = "#fff";
+				 canvasContext.fillRect(0,0,sizedWindowWidth,200);
+				 
+				 canvasContext.moveTo(50,150);
+				 canvasContext.lineTo(sizedWindowWidth-50,150);
+				 canvasContext.stroke();
+				
+				 canvasContext.fillStyle = "#000";
+				 canvasContext.font="20px Arial";
+				 canvasContext.fillText("x",40,155);
+			 }
+			 // Bind Mouse events
+			 $(canvas).on('mousedown', function (e) {
+				 if(e.which === 1) { 
+					 leftMButtonDown = true;
+					 canvasContext.fillStyle = "#000";
+					 var x = e.pageX - $(e.target).offset().left;
+					 var y = e.pageY - $(e.target).offset().top;
+					 canvasContext.moveTo(x, y);
+				 }
+				 e.preventDefault();
+				 return false;
+			 });
+			
+			 $(canvas).on('mouseup', function (e) {
+				 if(leftMButtonDown && e.which === 1) {
+					 leftMButtonDown = false;
+					 isSign = true;
+				 }
+				 e.preventDefault();
+				 return false;
+			 });
+			
+			 // draw a line from the last point to this one
+			 $(canvas).on('mousemove', function (e) {
+				 if(leftMButtonDown == true) {
+					 canvasContext.fillStyle = "#000";
+					 var x = e.pageX - $(e.target).offset().left;
+					 var y = e.pageY - $(e.target).offset().top;
+					 canvasContext.lineTo(x,y);
+					 canvasContext.stroke();
+				 }
+				 e.preventDefault();
+				 return false;
+			 });
+			 
+			 //bind touch events
+			 $(canvas).on('touchstart', function (e) {
+				leftMButtonDown = true;
+				canvasContext.fillStyle = "#000";
+				var t = e.originalEvent.touches[0];
+				var x = t.pageX - $(e.target).offset().left;
+				var y = t.pageY - $(e.target).offset().top;
+				canvasContext.moveTo(x, y);
+				
+				e.preventDefault();
+				return false;
+			 });
+			 
+			 $(canvas).on('touchmove', function (e) {
+				canvasContext.fillStyle = "#000";
+				var t = e.originalEvent.touches[0];
+				var x = t.pageX - $(e.target).offset().left;
+				var y = t.pageY - $(e.target).offset().top;
+				canvasContext.lineTo(x,y);
+				canvasContext.stroke();
+				
+				e.preventDefault();
+				return false;
+			 });
+			 
+			 $(canvas).on('touchend', function (e) {
+				if(leftMButtonDown) {
+					leftMButtonDown = false;
+					isSign = true;
+				}
+			 
+			 });
+		}
+		
+		var map;
+		function initialize() 
+		{
+  			var mapOptions = {
+    		zoom: 15
+  		};
+  		map = new google.maps.Map(document.getElementById('map-canvas'),mapOptions);
+
+  		// Try HTML5 geolocation
+  		if(navigator.geolocation) 
+  		{
+    		navigator.geolocation.getCurrentPosition(function(position) {
+      		var pos = new google.maps.LatLng(position.coords.latitude,position.coords.longitude);
+			var infowindow = new google.maps.InfoWindow({
+        	map: map,
+        	position: pos,
+        	content: 'You are Here'
+      });
+      
+latitude = position.coords.latitude;
+longitude = position.coords.longitude;
+$('input#latitude').val(latitude);
+$('input#longitude').val(longitude);
+
+      map.setCenter(pos);
+      return pos;
+    }, function() 
+    {
+      handleNoGeolocation(true);
+    });
+  } else 
+  {
+    // Browser doesn't support Geolocation
+    handleNoGeolocation(false);
+  }
+}
+
+function handleNoGeolocation(errorFlag) 
+{
+  if (errorFlag) 
+  {
+    var content = 'Error: The Geolocation service failed.';
+  } 
+  else 
+  {
+    var content = 'Error: Your browser doesn\'t support geolocation.';
+  }
+
+  var options = {
+    map: map,
+    position: new google.maps.LatLng(60, 105),
+    content: content
+  };
+
+  var infowindow = new google.maps.InfoWindow(options);
+  map.setCenter(options.position);
+}
+
+google.maps.event.addDomListener(window, 'load', initialize);
+
+
+window.onload = function(){date()}, setInterval(function(){date()}, 1000);
+
+	function date() 
+	{
+    	var now = new Date(),
+        now = now.getHours()+':'+now.getMinutes()+':'+now.getSeconds();
+    $('#time').html(now);
+	}
+
+
+	function getURLParameters(paramName)
+	{
+    	var sURL = window.document.URL.toString();
+    	if (sURL.indexOf("?") > 0)
+    	{
+        	var arrParams = sURL.split("?");
+        	var arrURLParams = arrParams[1].split("&");
+        	var arrParamNames = new Array(arrURLParams.length);
+        	var arrParamValues = new Array(arrURLParams.length);
+			var i = 0;
+        	for (i = 0; i<arrURLParams.length; i++)
+        	{
+            	var sParam =  arrURLParams[i].split("=");
+            	arrParamNames[i] = sParam[0];
+            	if (sParam[1] != "")
+                	arrParamValues[i] = unescape(sParam[1]);
+            	else
+                	arrParamValues[i] = "No Value";
+        	}
+
+        	for (i=0; i<arrURLParams.length; i++)
+        	{
+            	if (arrParamNames[i] == paramName)
+            {
+                //alert("Parameter:" + arrParamValues[i]);
+                return arrParamValues[i];
+            }
+        }
+        return "No Parameters Found";
+    }
+}
+
+
+$(document).ready(function(){
+		
+    $("#check_in_form").submit(function(event)
+	{
+	
+		var latitude=$('input#latitude').val();
+		var longitude=$('input#longitude').val();
+		var imgData=$('input#imgData').val();
+	
+	
+		var visit_uuid = getURLParameters('visit_uuid');
+		var visit_type_id = getURLParameters('visit_type_id');
+		var patient_uuid = getURLParameters('patient_uuid');
+		var user_id = getURLParameters('user_id');
+		var patient_availability_status =$('input[name="my-checkbox"]').is(":checked");
+		var device_uuid = device.uuid;
+	
+		if(patient_availability_status)
+		{ 
+			return fun_submit();
+		}
+		else
+		{
+			var expenses1=$("#expenses1").val();
+			if(expenses1 == "")
+			{
+				bootbox.dialog({
+  				message: "Expenses field cannot be empty",
+  				title: "Message",
+  				buttons: {
+    			success: {
+      			label: "OK",
+      			className: "btn-error",
+      			callback: function() {
+  			}
+  		}
+  	}
+}); 
+	
+	return false;
+	}
+	else
+	{
+	}
+	
+	var miledge1=$("#miledge1").val();
+	if(miledge1 == "")
+	{
+	 	bootbox.dialog({
+  		message: "Mileage field cannot be empty",
+  		title: "Message",
+ 	 	buttons: {
+    	success: {
+      	label: "OK",
+      	className: "btn-error",
+      	callback: function() {
+  	}
+  }
+  }
+}); 
+	
+	return false;
+	}
+	else
+	{
+	}
+
+	var exampleInputminutesspent=$("#exampleInputminutesspent").val();
+	  
+	if(exampleInputminutesspent== "")
+	{
+		bootbox.dialog({
+ 	 	message: "Please enter Number of minutes spent ",
+  		title: "Message",
+  		buttons: {
+    	success: {
+      	label: "OK",
+      	className: "btn-error",
+      	callback: function() {
+  	}
+  }
+  }
+}); 
+	return false;
+	}
+	else
+	{
+	return fun_submit();
+		if(!isSign)
+		{
+		
+		bootbox.dialog({
+ 	 	message: "Signature box cannot be empty",
+  		title: "Message",
+  		buttons: {
+    	success: {
+      	label: "OK",
+      	className: "btn-error",
+      	callback: function() {
+  	}
+  }
+  }
+}); 
+			
+			return false;
+		}
+		else
+		{
+	
+		
+		return transaction_function();
+						
+		}
+		
+	}
+	var reason_codes=$('select#reason_codes').val();
+	var expenses=$('input#exampleInputexpenses1').val();
+	var miledge=$('input#exampleInputmiledge1').val();
+	var number_of_minutes_spent=$('input#exampleInputminutesspent').val();
+	var latitude=$('input#latitude').val();
+	var longitude=$('input#longitude').val();
+	var imgData=$('input#imgData').val();
+}
+  		var canvas = $("#canvas").get(0);
+		var imgData = canvas.toDataURL();
+	
+			});
+});
+
+
+
+
+function transaction_function()
+{
+
+		$.post( "http://183.82.96.212:8080/m_service/m_resources/employee_visit_check_in" , { transaction_type:'3', imgData:imgData, device_unique_id:'8dc6cf319947e729',latitude:'654',longitude:'654',sch_uuid:sch_uuid,patient_uuid:'66985',employee_uuid:'648',business_uuid:'56416',visit_date:'2015-08-25',visit_type_id:'684',check_in_time:'12:00',expenses:'5',mileage:'685',reason_codes:'sref',duration:'68'}, function( data ) {
+
+		
+ 		//document.getElementById("bootstrap").innerHTML = "<div class='alert alert-success' role='alert'></div>";
+		//window.location='./post_check_in.html';
+	      return false;
+      
+}, "json").fail(function() {
+
+		
+		return false;
+});
+
+}
+
+
+
+		
+		$(document).ready(function () {
+  //called when key is pressed in textbox
+  $("#exampleInputmiledge1").keypress(function (e) {
+     //if the letter is not digit then display error and don't type anything
+     if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+        //display error message
+        $("#errmsg").html("").show().fadeOut("slow");
+               return false;
+    }
+   });
+});
+
+		$(document).ready(function () {
+  //called when key is pressed in textbox
+  $("#exampleInputexpenses1").keypress(function (e) {
+     //if the letter is not digit then display error and don't type anything
+     if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+        //display error message
+        $("#errmsg").html("").show().fadeOut("slow");
+               return false;
+    }
+   });
+});
+
+
+
+
+
+
+
+
+function successCallback()
+{
+	alert("Gps is enabled, Success Call Back Function");
+}
+
+
+
+function errorCallback()
+{
+	alert("Gps is not enabled, Error Call Back Function");
+	cordova.plugins.diagnostic.switchToLocationSettings();
+	alert("After the navigation switchToLocationSettings code");
+}
+
+
+
+
+
+
+
+
+
+
+
+	</script>
+	<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+	<a href="patient_selection.html"><img src="backbutton.png" alt style="height: 50px;float: left;""></a>
+    <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            
+			<div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">
+                    <img src="homecare_logo.png" alt style="height: 39px;margin-top: -8px;"">
+                </a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a href="about.html">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="contactus.html">Contact</a>
+                    </li>
+					<li>
+                        <a href="log-in.html">Logout</a>
+                    </li>
+                    <li>
+                    	<a><span id="agency_name"></span></a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+    <title>Attendance System</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    
+</head>
+
+<body onload="onDeviceReady()">
+<body>
+		<div id="map-canvas"></div>
+ <form name='frm' method="post"  id="check_in_form"  role="login">
+       
+<span class="col-md-12 col-xs-12 col-sm-12">
+<table><tr><td style="padding-right: 8px; font-size: 22px; color: #1357A6;"><span >
+<span class=" glyphicon glyphicon-user"></span></td><td style="width: 100%;"><b><p class="dotted "><span  class="col-md-12 col-xs-12 col-sm-12" id="exampleInputpatientname1"style=";margin-left: -16px; color: #1357A6; width: 148px;"></span></b><br></p></td></tr></table></span>
+<span class="col-md-12 col-xs-12 col-sm-12">
+<span class="col-md-6 col-xs-6 col-sm-6" style="padding: 0px;">
+<table><tr><td style="padding-right: 8px; font-size: 22px; color: #1357A6;"><span class=" glyphicon glyphicon-bed"></span></td><td style="width: 100%;"><b><p class="dotted "><span  class="col-md-12 col-xs-12 col-sm-12 " id="exampleInputvisittype1" style="margin-left: -16px;color: #1357A6"></span></b><br></p></td></tr></table></span>
+<span class="col-md-6 col-xs-6 col-sm-6">
+<table><tr><td style="padding-right: 8px; font-size: 22px; color: #1357A6;"><span class=" glyphicon glyphicon-time"></span></td><td style="width: 100%;"><b><p class="dotted "><span  class="col-md-12 col-xs-12 col-sm-12 " ><span id="exampleInputscheduledtime1" style="margin-left: -16px;color: #1357A6;"></span></span></b><br></p></td></tr></table>
+</span>
+</span>
+	<input type="hidden" class="form-control" id="exampleInputpatientname1" value="" disabled style="margin-top: -14px;"/>
+	<input type="hidden" class="form-control" id="latitude" value="" disabled style="margin-top: -14px;"/>
+	<input type="hidden" class="form-control" id="longitude" value="" disabled style="margin-top: -14px;"/>
+	<input type="hidden" class="form-control" id="exampleInputvisittype1" value="" disabled style="margin-top: -27px;"/>
+	<input type="hidden" size="450px" class="form-control" id="exampleInputscheduledtime1" value="" disabled style="margin-top: -27px;"/>
+
+<span class="col-md-12 col-xs-12 col-sm-12 ">
+<b><div id="timer"style="font-size: 14px;">Current Time: <span id="time" style="font-size: 14px;"></span></div></b>
+</span>
+
+<span class="col-md-6 col-xs-8 col-sm-6 ">
+<label class=" control-label" for="IsSmallBusiness" style="font-size: 14px;  " inline>Is Patient Available ?</label>
+<input type="checkbox" name="my-checkbox" data-on-text="YES" data-off-text="NO" checked checked data-size="small">
+</span>
+
+<script>
+
+
+ $("[name='my-checkbox']").bootstrapSwitch();
+
+$('input[name="my-checkbox"]').on('switchChange.bootstrapSwitch', function(event, state) {
+  if(!state)
+  {
+  
+$('#patient_availability').removeClass('hide').show();
+$('#gobtn').html("Check-In/Out");
+  }
+  else{
+  
+$('#patient_availability').addClass('hide').hide();
+$('#gobtn').html("Check-In");
+  }
+});
+
+</script>
+
+<br>
+<span id="patient_availability" class="hide">
+<br>
+
+<select class="form-control" id="reason_codes">
+    <option value=1>No answer, at Door</option>
+    <option value=2>Patient/Caregiver refused</option>
+    <option value=3>Doctor Notified</option>
+    <option value=4>Patient Hospitalized</option>
+    <option value=5>Doctor Visit</option>
+    <option value=6>Other</option>
+</select>
+<br>
+
+<div class="form-group">
+<div class="col-sm-12 col-xs-6 col-md-6 ">
+	<label for="exampleInputexpenses1"></label>
+	<input type="tel"  size="450px"  step="any" maxlength="8"   class="form-control" id="expenses1" placeholder="Expenses" style="margin-top: -27px;"/>
+</div>
+</div>
+<div class="form-group">
+<div class="col-sm-12 col-xs-6 col-md-6 ">
+	<label for="exampleInputmiledge1"></label>
+	<input type="tel"  size="450px" step="any" maxlength="6"  class="form-control" id="miledge1" placeholder="Mileage"  style="margin-top: -27px;"/>
+</div>
+</div>
+<br>
+<br>
+
+<div class="form-group">
+<center><div class="col-sm-12 col-xs-12 col-md-6 ">
+	<label for="exampleInputmiledge1"></label>
+	<input type="tel" size="450px" pattern="\d*" maxlength="3" class="form-control" id="exampleInputminutesspent" placeholder="No.of minutes at Patient's home"  style="margin-top: -27px;"/>
+</div></center>
+</div>
+</span>
+<br>
+<br>
+<h5><span id="style_css" class="col-sm-12 col-xs-12 col-md-12 " style="margin-left: -1px;">
+<b style="position: relative;top: 12px;">Employee Signature</b></span></h5>
+				
+<div id="page" data-role="content"><center>
+<div class="col-sm-12 col-xs-12 col-md-9 ">
+<div class="ui-content popUpHeight" style="position: relative;bottom: 24px;">
+<div id="div_signcontract" style="position: relative;top: 14px;">
+<span class="col-sm-12 col-xs-12 col-md-12" style="top: 19px; margin-left: -1px;">		
+<button type="button" class="btn btn-primary btn-xs " onclick="init_Sign_Canvas()" style="background-color:  #1357A6;margin-left: 258px;">Clear</button>
+			</span>
+					<canvas id="canvas">Canvas is not supported</canvas>
+				</div>
+				
+			</div></center>
+</div>
+<br>
+<div id="page" data-role="content">
+<button type="submit" name="go" class="btn btn-lg btn-primary btn-block" id="check_in_time" style="background-color: #1357A6;">Check-In</button>
+</form>
+  <div class="form-links">
+      <center><a href="http://www.ondemandhomecare.com/">www.ondemandhomecare.com</a></center>
+        </div>
+      </section>  
+      </div>
+      <div class="col-md-4"></div>
+</body>
+</html>

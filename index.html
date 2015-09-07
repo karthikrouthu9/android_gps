@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+
+		  	<title>Attendance Monitoring System - Login Form</title>
+			
+			<link rel='stylesheet' href='register.css' type='text/css'/> 
+			<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+    		<link rel="stylesheet" href="bootstrap-3.3.4/css/bootstrap.min.css" media="screen" type="text/css" />
+     		<script src="bootstrap-3.3.4/js/bootstrap.min.js"></script>
+    		<script src="register.js"></script>
+    		<script src="jquery-1.11.2.min.js"></script>
+    		<script src="jquery-1.11.2.js"></script>
+    		<script type="text/javascript" src="cordova.js"></script>
+    		<script src="ajax.googleapis.jquery.min.js"></script>
+			<script src="cdnjs.cloudflare.modernizr.js"></script>
+	<script>
+    		
+    
+    
+      document.addEventListener("deviceready", onDeviceReady, false);
+
+    // Cordova is loaded and it is now safe to make calls Cordova methods
+    //
+    function onDeviceReady() {
+    
+ $(".se-pre-con").fadeOut("slow");;
+        var element = document.getElementById('deviceProperties');
+
+       var device_uuid = device.uuid;
+       
+       
+ 
+    var networkState = navigator.connection.type;
+    if (networkState == Connection.NONE)
+    {
+     
+        
+document.getElementById("bootstrap").innerHTML = "<div class='alert alert-danger' role='alert'>Please Check Internet Connection Settings</div>";
+     
+                window.location='./first_screen.html';
+                return true;
+    }
+    else
+{
+    	is_device_registered(device_uuid);
+ function is_device_registered(device_uuid)
+{
+$.post( "http://183.82.96.212:8080/m_service/m_resources/is_device_registered" , {device_uuid:device_uuid}, function( data ) {	 
+  if(data.logindata[0].is_security_question_answered==1 && data.logindata[0].count>=1)
+      {
+     
+      window.location='./log-in.html';
+      return false;
+      }
+      else if(data.logindata[0].is_security_question_answered==0 && data.logindata[0].count>=1)
+      {
+      window.location='./security_questions.html';
+      return false;
+      }
+      else
+      {
+      window.location='./registration.html';
+      return false;
+      }
+}, "json").fail(function() {
+
+//var json ='{"result":"E-10001 :","message": "Invalid username or password"}';
+//obj = JSON.parse(json);
+//document.getElementById("bootstrap").innerHTML = "<div class='alert alert-danger' role='alert'>"+obj.message+"</div>";
+	
+
+  });;
+
+  return false;
+
+}
+}
+			}
+        </script>
+</head>
+
+<body onload="onDeviceReady()">
+<div class="container">
+  
+  <div class="row" id="pwd-container">
+    <div class="col-md-4"></div>
+   
+    <div class="col-md-4">
+      <section class="login-form">
+        <span id="bootstrap"></span>
+        <form method="post"  onsubmit="return formValidation();" role="login">
+          <img src="homecare_logo.png" class="img-responsive" alt="" style="HEIGHT:62PX;"/>
+          <img src="In turn zooming.gif" class="img-responsive" alt="" style="HEIGHT:45PX;"/>
+         
+          
+</body>
+
+</html>
